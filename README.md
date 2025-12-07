@@ -61,6 +61,7 @@ php artisan migrate
 
 ## ER図
 
+```mermaid
 erDiagram
     %% エンティティ (テーブル) の定義
     users {
