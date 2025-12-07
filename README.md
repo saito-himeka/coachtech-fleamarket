@@ -185,4 +185,3 @@ usecaseDiagram
     Registered --> UC404
     Registered --> UC501
     Registered --> UC502
-```
