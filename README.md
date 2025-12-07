@@ -130,7 +130,7 @@ erDiagram
     items }|--o{ category_item : 複数カテゴリ
     categories }|--o{ category_item : カテゴリ
 ```
-##ユースケース図
+## ユースケース図
 
 ```mermaid
 usecaseDiagram
