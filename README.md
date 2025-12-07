@@ -62,7 +62,6 @@ php artisan migrate
 ## ER図
 
 ```mermaid
-erDiagram
     %% エンティティ (テーブル) の定義
     users {
         bigint id PK "ユーザーID"
@@ -120,30 +119,30 @@ erDiagram
     
     %% リレーションシップの定義 (Laravel Eloquentの記法に近い表記を使用)
     
-    % ユーザー (出品者) と商品 (1対多)
+    %% ユーザー (出品者) と商品 (1対多)
     users ||--o{ items : 出品_has
     
-    % ユーザー (購入者) と取引 (1対多)
+    %% ユーザー (購入者) と取引 (1対多)
     users ||--o{ purchases : 購入_buys
     
-    % ユーザーとコメント (1対多)
+    %% ユーザーとコメント (1対多)
     users ||--o{ comments : コメント_posts
     
-    % ユーザーといいね (多対多の中間)
+    %% ユーザーといいね (多対多の中間)
     users ||--o{ favorites : いいね_likes
     
-    % 商品と取引 (1対0または1) - 購入されたらSold
+    %% 商品と取引 (1対0または1) - 購入されたらSold
     items ||--|{ purchases : 取引完了_sold
     
-    % 商品と状態 (1対多) - マスタ
+    %% 商品と状態 (1対多) - マスタ
     conditions ||--o{ items : 状態_has_status
     
-    % 商品とコメント (1対多)
+    %% 商品とコメント (1対多)
     items ||--o{ comments : コメント対象_has
     
-    % 商品といいね (多対多の中間)
+    %% 商品といいね (多対多の中間)
     items ||--o{ favorites : いいね対象_is_liked
     
-    % 商品とカテゴリ (多対多の中間)
+    %% 商品とカテゴリ (多対多の中間)
     items }|--o{ category_item : 複数カテゴリ
     categories }|--o{ category_item : カテゴリ
