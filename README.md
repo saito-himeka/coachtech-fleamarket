@@ -60,18 +60,29 @@ php artisan migrate
     - パスワード:laravel_pass
 
 ## ER図
-
-```mermaid
 erDiagram
-    %% エンティティ (テーブル) の定義
+    %% ユーザー系テーブル (認証とプロフィールを分離)
     users {
         bigint id PK "ユーザーID"
-        varchar name
-        varchar email
-        varchar profile_image
-        varchar post_code "プロフィール住所"
+        varchar email "メールアドレス"
+        varchar password "パスワード"
+        timestamp created_at "作成日時"
+        timestamp updated_at "更新日時"
     }
     
+    profiles {
+        bigint id PK "プロフィールID"
+        bigint user_id FK "ユーザーID (Unique)"
+        varchar name "ユーザー名"
+        varchar profile_image "プロフィール画像"
+        varchar post_code "郵便番号"
+        varchar address "住所"
+        varchar building_name "建物名"
+        timestamp created_at "作成日時"
+        timestamp updated_at "更新日時"
+    }
+    
+    %% 商品・取引系テーブル
     items {
         bigint id PK "商品ID"
         bigint user_id FK "出品者ID"
@@ -79,6 +90,8 @@ erDiagram
         varchar name
         int price
         json image_paths "複数画像パス"
+        timestamp created_at "作成日時"
+        timestamp updated_at "更新日時"
     }
     
     purchases {
@@ -86,20 +99,29 @@ erDiagram
         bigint item_id FK "商品ID (Unique)"
         bigint user_id FK "購入者ID"
         tinyint payment_method
-        varchar post_code "送付先"
+        varchar post_code "送付先郵便番号"
+        varchar address "送付先住所"
+        varchar building_name "送付先建物名"
+        timestamp created_at "購入日時"
+        timestamp updated_at "更新日時"
     }
     
+    %% 補助テーブル
     comments {
         bigint id PK
         bigint item_id FK
         bigint user_id FK
         varchar comment
+        timestamp created_at "作成日時"
+        timestamp updated_at "更新日時"
     }
     
     favorites {
         bigint id PK
         bigint user_id FK
         bigint item_id FK
+        timestamp created_at "作成日時"
+        timestamp updated_at "更新日時"
     }
     
     conditions {
@@ -119,14 +141,22 @@ erDiagram
     }
     
     %% リレーションシップの定義
+    
+    %% ユーザーとプロフィールの1対1
+    users ||--|| profiles : has_profile
+    
+    %% usersテーブルをキーとしたリレーションは維持
     users ||--o{ items : 出品_has
     users ||--o{ purchases : 購入_buys
     users ||--o{ comments : コメント_posts
     users ||--o{ favorites : いいね_likes
+    
+    %% その他リレーションは変更なし
     items ||--|{ purchases : 取引完了_sold
     conditions ||--o{ items : 状態_has_status
     items ||--o{ comments : コメント対象_has
     items ||--o{ favorites : いいね対象_is_liked
     items }|--o{ category_item : 複数カテゴリ
     categories }|--o{ category_item : カテゴリ
-```
+```mermaid
+
