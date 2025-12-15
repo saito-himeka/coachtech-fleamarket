@@ -60,6 +60,8 @@ php artisan migrate
     - パスワード:laravel_pass
 
 ## ER図
+```mermaid
+
 erDiagram
     %% ユーザー系テーブル (認証とプロフィールを分離)
     users {
@@ -158,5 +160,5 @@ erDiagram
     items ||--o{ favorites : いいね対象_is_liked
     items }|--o{ category_item : 複数カテゴリ
     categories }|--o{ category_item : カテゴリ
-```mermaid
+```
 
