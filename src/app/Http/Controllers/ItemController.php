@@ -17,7 +17,7 @@ class ItemController extends Controller
     {
         // 1. パラメータの取得
         $tab = $request->query('tab', 'recommend');
-        $keyword = $request->input('keyword'); // 検索窓からの文字
+        $keyword = $request->input('keyword'); 
 
         // 2. ベースとなるクエリ（土台）の決定
         if ($tab === 'mylist') {
@@ -34,10 +34,6 @@ class ItemController extends Controller
         } else {
             // おすすめタブ：全商品を対象にするクエリ
             $query = Item::query();
-
-            if (Auth::check()) {
-                $query->where('user_id', '!=', Auth::id());
-            }
         }
 
         // 3. 検索キーワードがあれば絞り込みを追加
