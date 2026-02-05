@@ -122,6 +122,8 @@ return [
     |--------------------------------------------------------------------------
     | Custom Validation Language Lines
     |--------------------------------------------------------------------------
+
+    
     |
     | Here you may specify custom validation messages for attributes using the
     | convention "attribute.rule" to name the lines. This makes it quick to
@@ -150,5 +152,7 @@ return [
         'name'     => 'お名前',
         'email'    => 'メールアドレス',
         'password' => 'パスワード',
+        'post_code' => '郵便番号',
+        'address' => '住所',
     ],
 ];

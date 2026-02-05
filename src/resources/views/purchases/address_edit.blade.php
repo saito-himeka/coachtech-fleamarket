@@ -11,11 +11,19 @@
         <div class="form-group">
             <label for="post_code" class="form-label">郵便番号</label>
             <input type="text" name="post_code" id="post_code" class="form-input" value="{{ old('post_code', $user->profile->post_code ?? '') }}">
+
+            @error('post_code')
+                <div style="color: red;">{{ $message }}</div>
+            @enderror
         </div>
 
         <div class="form-group">
             <label for="address" class="form-label">住所</label>
             <input type="text" name="address" id="address" class="form-input" value="{{ old('address', $user->profile->address ?? '') }}">
+
+            @error('address')
+                <div style="color: red;">{{ $message }}</div>
+            @enderror
         </div>
 
         <div class="form-group">

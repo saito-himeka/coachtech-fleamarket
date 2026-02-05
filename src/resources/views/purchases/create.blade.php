@@ -25,10 +25,13 @@
         <div class="purchase-section">
             <h2 class="purchase-section-title">支払い方法</h2>
             <select name="payment_method" class="payment-select">
-                <option value="" disabled selected>選択してください</option>
-                <option value="konbini">コンビニ払い</option>
-                <option value="card">クレジットカード</option>
+                <option value="" disabled {{ old('payment_method') ? '' : 'selected' }}>選択してください</option>
+                <option value="konbini" {{ old('payment_method') == 'konbini' ? 'selected' : '' }}>コンビニ払い</option>
+                <option value="card" {{ old('payment_method') == 'card' ? 'selected' : '' }}>クレジットカード</option>
             </select>
+            @error('payment_method')
+                <div style="color: red;">{{ $message }}</div>
+            @enderror
         </div>
 
         {{-- 配送先セクション --}}
@@ -39,17 +42,21 @@
                     変更する
                 </a>
             </div>
-            <div class="address-display">
-                {{-- Auth::user()->profile が存在する場合のみ表示 --}}
-                @if(Auth::user()->profile)
+           <div class="address-display">
+                {{-- profileが存在し、かつaddressが空ではないかチェック --}}
+                @if(Auth::user()->profile && !empty(Auth::user()->profile->address))
                     <p>〒 {{ Auth::user()->profile->post_code }}</p>
                     <p>{{ Auth::user()->profile->address }}</p>
                     <p>{{ Auth::user()->profile->building_name }}</p>
                 @else
                     <p>〒 000-0000</p>
-                    <p>住所が登録されていません</p>
+                    {{-- addressが空、またはprofile自体がない場合に表示 --}}
+                    <p style="color: red;">住所が登録されていません</p>
                 @endif
             </div>
+            @error('address')
+                <div style="color: red;">{{ $message }}</div>
+            @enderror
         </div>
     </div>
 
@@ -86,6 +93,17 @@
         const selectedText = this.options[this.selectedIndex].text;
         document.getElementById('selected-payment').textContent = selectedText;
         document.getElementById('payment-method-hidden').value = this.value;
+    });
+
+    // スクリプトの最後に追加
+    window.addEventListener('load', function() {
+        const select = document.querySelector('.payment-select');
+        if(select.value) {
+            // すでに値（old値）がある場合は表示を更新
+            const selectedText = select.options[select.selectedIndex].text;
+            document.getElementById('selected-payment').textContent = selectedText;
+            document.getElementById('payment-method-hidden').value = select.value;
+        }
     });
 </script>
 @endsection

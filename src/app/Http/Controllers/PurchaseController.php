@@ -68,7 +68,9 @@ class PurchaseController extends Controller
 
         // 2. 配送先チェック
         if (!$user->profile || !$user->profile->address) {
-            return redirect()->back()->with('error', '配送先を登録してください。');
+        // redirect()->back() の代わりに back() でもOK
+        // withErrors(['キー名' => 'メッセージ']) を使う
+        return back()->withErrors(['address' => '配送先を登録してください。'])->withInput();
         }
 
         // 3. 売り切れチェック
