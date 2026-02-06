@@ -3,6 +3,17 @@
 ## アプリケーション概要
 - Laravel 8 を使用したフリーマーケットアプリケーションです。
 - Dockerで開発環境を構築可能。
+```text
+- 会員登録・ログイン機能（メール認証付き）
+- 商品一覧表示機能（おすすめ・マイリスト切り替え）
+- 商品検索機能
+- 商品詳細表示機能
+- 商品出品機能（画像アップロード含む）
+- プロフィール編集機能
+- 配送先変更機能
+- Stripeによる決済機能
+- いいね・コメント機能
+```
 
 ---
 
@@ -33,6 +44,7 @@ composer install
 ```bash
 cp .env.example .env
 php artisan key:generate
+php artisan storage:link
 ```
 
 6. **ストレージ・キャッシュの権限設定**
@@ -45,12 +57,41 @@ chmod -R 777 storage bootstrap/cache
 php artisan migrate
 ```
 
-## 使用技術/バージョン
-- laravel 8.83.29
-- php 8.1.33
-- nginx 1.21.1
-- mysql 8.0.26
+## テスト
+テストコード（Feature Test）を実装しています。
+```bash
+php artisan test
+```
 
+## 使用技術/バージョン
+- **Backend**: Laravel 8.83.29 (PHP 8.1.33)
+- **Frontend**: Blade, CSS, JavaScript
+- **Database**: MySQL 8.0.26
+- **Infrastructure**: Docker, Nginx 1.21.1
+- **External API**: Stripe (決済処理)
+
+## メール認証の設定 (Mailtrap)
+ローカルでのメール送信テストには Mailtrap を使用しています。
+`.env` ファイルの以下の項目に、ご自身の Mailtrap 認証情報を設定してください。
+
+```text
+MAIL_MAILER=smtp
+MAIL_HOST=sandbox.smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=（ユーザー名）
+MAIL_PASSWORD=（パスワード）
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS="hello@example.com"
+```
+
+## 決済機能の設定 (Stripe)
+決済機能を利用するには Stripe のアカウントが必要です。
+[Stripeダッシュボード](https://dashboard.stripe.com/)から取得したAPIキーを `.env` に設定してください。
+
+```text
+STRIPE_PUBLIC_KEY=pk_test_...
+STRIPE_SECRET=sk_test_...
+```
 
 ## URL
 - 開発環境:http://localhost
@@ -60,105 +101,6 @@ php artisan migrate
     - パスワード:laravel_pass
 
 ## ER図
-```mermaid
 
-erDiagram
-    %% ユーザー系テーブル (認証とプロフィールを分離)
-    users {
-        bigint id PK "ユーザーID"
-        varchar email "メールアドレス"
-        varchar password "パスワード"
-        timestamp created_at "作成日時"
-        timestamp updated_at "更新日時"
-    }
-    
-    profiles {
-        bigint id PK "プロフィールID"
-        bigint user_id FK "ユーザーID (Unique)"
-        varchar name "ユーザー名"
-        varchar profile_image "プロフィール画像"
-        varchar post_code "郵便番号"
-        varchar address "住所"
-        varchar building_name "建物名"
-        timestamp created_at "作成日時"
-        timestamp updated_at "更新日時"
-    }
-    
-    %% 商品・取引系テーブル
-    items {
-        bigint id PK "商品ID"
-        bigint user_id FK "出品者ID"
-        bigint condition_id FK "状態ID"
-        varchar name
-        int price
-        json image_paths "複数画像パス"
-        timestamp created_at "作成日時"
-        timestamp updated_at "更新日時"
-    }
-    
-    purchases {
-        bigint id PK "購入ID"
-        bigint item_id FK "商品ID (Unique)"
-        bigint user_id FK "購入者ID"
-        tinyint payment_method
-        varchar post_code "送付先郵便番号"
-        varchar address "送付先住所"
-        varchar building_name "送付先建物名"
-        timestamp created_at "購入日時"
-        timestamp updated_at "更新日時"
-    }
-    
-    %% 補助テーブル
-    comments {
-        bigint id PK
-        bigint item_id FK
-        bigint user_id FK
-        varchar comment
-        timestamp created_at "作成日時"
-        timestamp updated_at "更新日時"
-    }
-    
-    favorites {
-        bigint id PK
-        bigint user_id FK
-        bigint item_id FK
-        timestamp created_at "作成日時"
-        timestamp updated_at "更新日時"
-    }
-    
-    conditions {
-        bigint id PK
-        varchar name
-    }
-    
-    categories {
-        bigint id PK
-        varchar name
-    }
-    
-    category_item {
-        bigint id PK "中間テーブル"
-        bigint item_id FK
-        bigint category_id FK
-    }
-    
-    %% リレーションシップの定義
-    
-    %% ユーザーとプロフィールの1対1
-    users ||--|| profiles : has_profile
-    
-    %% usersテーブルをキーとしたリレーションは維持
-    users ||--o{ items : 出品_has
-    users ||--o{ purchases : 購入_buys
-    users ||--o{ comments : コメント_posts
-    users ||--o{ favorites : いいね_likes
-    
-    %% その他リレーションは変更なし
-    items ||--|{ purchases : 取引完了_sold
-    conditions ||--o{ items : 状態_has_status
-    items ||--o{ comments : コメント対象_has
-    items ||--o{ favorites : いいね対象_is_liked
-    items }|--o{ category_item : 複数カテゴリ
-    categories }|--o{ category_item : カテゴリ
-```
+![ER図](./docs/er-diagram.png)
 
