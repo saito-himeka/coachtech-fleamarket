@@ -54,7 +54,7 @@ chmod -R 777 storage bootstrap/cache
 
 7. **データベースをマイグレーション**
 ```bash
-php artisan migrate
+php artisan migrate:fresh --seed
 ```
 
 ## テスト
