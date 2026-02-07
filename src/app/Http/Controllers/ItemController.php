@@ -34,6 +34,10 @@ class ItemController extends Controller
         } else {
             // おすすめタブ：全商品を対象にするクエリ
             $query = Item::query();
+
+            if (Auth::check()) {
+                $query->where('user_id', '!=', Auth::id());
+            }
         }
 
         // 3. 検索キーワードがあれば絞り込みを追加

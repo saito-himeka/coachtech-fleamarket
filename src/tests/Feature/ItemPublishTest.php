@@ -66,28 +66,48 @@ class ItemPublishTest extends TestCase
      * 【追加】出品した商品がトップページ一覧に表示される
      * （自分が出品した商品を除外しない仕様の確認）
      */
-    public function test_published_item_is_displayed_on_top_page()
+    /**
+     * 【修正】自分が出品した商品はトップページ一覧に表示されない
+     */
+    public function test_own_item_is_not_displayed_on_top_page()
     {
         $user = User::factory()->create();
+        $otherUser = User::factory()->create();
 
         $condition = Condition::first();
         
-        // 1. 商品を作成（自分が出品した状態にする）
-        $item = Item::create([
+        // 1. 自分が出品した商品を作成
+        $ownItem = Item::create([
             'user_id'      => $user->id,
             'condition_id' => $condition->id,
-            'name'         => 'トップページ表示確認商品',
+            'name'         => '自分の商品名',
             'brand'        => 'テストブランド',
             'price'        => 1000,
             'description'  => 'テスト説明',
-            'image_paths'  => ['/storage/item_images/test.jpg'],
+            'image_paths'  => ['/storage/item_images/own.jpg'],
         ]);
 
-        // 2. ログインした状態でトップページへアクセス
-        $response = $this->actingAs($user)->get('/');
+        // 2. 他人が出品した商品を作成（比較用）
+        $otherItem = Item::create([
+            'user_id'      => $otherUser->id,
+            'condition_id' => $condition->id,
+            'name'         => '他人の商品名',
+            'brand'        => 'テストブランド',
+            'price'        => 2000,
+            'description'  => 'テスト説明',
+            'image_paths'  => ['/storage/item_images/other.jpg'],
+        ]);
 
-        // 3. 自分の商品名が画面に表示されているか確認
+        // 3. ログインした状態でトップページ（おすすめタブ）へアクセス
+        $response = $this->actingAs($user)->get('/?tab=recommend');
+
+        // 4. 検証
         $response->assertStatus(200);
-        $response->assertSee('トップページ表示確認商品');
+        
+        // 【重要】他人の商品は表示されていることを確認
+        $response->assertSee('他人の商品名');
+        
+        // 【重要】自分の商品は「表示されていない」ことを確認
+        $response->assertDontSee('自分の商品名');
     }
 }
